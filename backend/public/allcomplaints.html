@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Dashboard – All Complaints</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Filter toolbar and layout styles */
+    .complaints-filter-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .complaints-toolbar-input {
+      padding: 8px 14px;
+      font-size: 1rem;
+      border: 1px solid #bbb;
+      border-radius: 5px;
+      background: #fff;
+      min-width: 220px;
+      flex-grow: 1;
+    }
+
+    .complaints-toolbar-select {
+      min-width: 160px;
+      padding: 8px 10px;
+      font-size: 1rem;
+      border: 1px solid #bbb;
+      border-radius: 5px;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .complaints-toolbar-btn {
+      background: #3498db;
+      color: #fff;
+      font-size: 1rem;
+      padding: 8px 20px;
+      border-radius: 5px;
+      border: 1px solid #2980b9;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .complaints-toolbar-btn:hover {
+      background: #217dbb;
+    }
+
+    .complaints-table-container {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .complaints-page #complaintsTable {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 1rem;
+    }
+
+    .complaints-page #complaintsTable th,
+    .complaints-page #complaintsTable td {
+      padding: 8px 8px;
+      text-align: center;
+      border: 1px solid #ccc;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 0.97rem;
+    }
+
+    .complaints-page #complaintsTable th {
+      background-color: #f4f4f4;
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+
+  
+    .complaints-page .btn-details {
+      background-color: #00BCD4;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 1rem;
+      transition: background-color 0.15s ease-in-out;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .complaints-page .btn-details:hover {
+      background-color: #009eb5;
+    }
+
+    .complaints-page .btn-submit {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.96rem;
+      min-width: 70px;
+      margin: 0;
+      transition: background-color 0.15s ease-in-out;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .complaints-page .btn-submit:hover {
+      background-color: #1e8449;
+    }
+
+    .complaints-page .status-indicator {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #bbb;
+    }
+
+    .status-action {
+      min-width: 97px;
+      padding: 6px 8px;
+      font-size: 0.97rem;
+      border-radius: 5px;
+      border: 1px solid #bbb;
+      margin-right: 2px;
+    }
+
+    @media (max-width: 767px) {
+      .complaints-table-container {
+        max-width: 100vw;
+      }
+      .complaints-page #complaintsTable th,
+      .complaints-page #complaintsTable td {
+        font-size: 0.92rem;
+        padding: 5px 2px;
+      }
+      .btn-submit, .btn-details {
+        font-size: 0.89rem;
+        padding: 4px 6px;
+        min-width: 55px;
+      }
+      .status-action {
+        min-width: 80px;
+        font-size: 0.9rem;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-container {
+      flex: 1 0 auto;
+    }
+
+    footer {
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="staffdashboard.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="staffdashboard.html">Statistics</a></li>
+        <hr />
+        <li class="active"><a href="allcomplaints.html">All Complaints</a></li>
+        <hr />
+        <li><a href="staffsolvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+      <div class="main-content complaints-page">
+        <div class="complaints-filter-toolbar">
+          <input type="text" id="searchInput" class="complaints-toolbar-input" placeholder="Search" />
+          <button id="searchBtn" class="complaints-toolbar-btn">Search</button>
+          <select id="classroomFilter" class="complaints-toolbar-select">
+            <option value="ctype">ClassRoom</option>
+            <option value="ctype">College</option>
+            <option value="ctype">Management</option>
+            <option value="ctype">Teacher</option>
+            <option value="ctype">Other</option>
+          </select>
+          <button id="filterBtn" class="complaints-toolbar-btn">Filter</button>
+        </div>
+
+        <h1 style="margin-top:2rem; margin-bottom:1rem;">Complaints Table</h1>
+        <div class="complaints-table-container">
+          <table id="complaintsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Subject</th>
+                <th>Complaint Type</th>
+                <th>Issued</th>
+                <th>Desc</th>
+                <th>Status</th>
+                <th>Actions</th>
+                <th>Submit</th> 
+              </tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer>
+    &copy; Regal College. All rights reserved.
+  </footer>
+
+<script>
+// Fetch staff name for the sidebar
+async function setSidebarUsername() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/staff/profile', {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const sidebarWelcome = document.getElementById("welcomeUser");
+    if (sidebarWelcome) {
+      sidebarWelcome.textContent = "Welcome, " + (data.name || "Staff");
+    }
+  } catch {}
+}
+setSidebarUsername();
+
+function escapeHtml(text) {
+  if (!text) return "";
+  return text.replace(/[&<>"']/g, function(m) {
+    return {
+      "&": "&amp;", "<": "&lt;", ">": "&gt;",
+      '"': "&quot;", "'": "&#39;",
+    }[m];
+  });
+}
+
+function renderComplaintsTable(data) {
+  const tbody = document.querySelector("#complaintsTable tbody");
+  tbody.innerHTML = "";
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No complaints found.</td></tr>';
+    return;
+  }
+  data.forEach((row, idx) => {
+    let statusColor =
+      row.status && row.status.toLowerCase() === "pending"
+        ? "yellow"
+        : row.status && row.status.toLowerCase() === "solved"
+        ? "#19c480"
+        : "#fa4747";
+    tbody.innerHTML += `
+      <tr data-complaint-id="${row.id}">
+        <td>${idx + 1}</td>
+        <td>${escapeHtml(row.user)}</td>
+        <td><b>${escapeHtml(row.subject)}</b></td>
+        <td>${escapeHtml(row.type)}</td>
+        <td>${row.issued ? (typeof row.issued === 'string' && row.issued.length > 15 ? new Date(row.issued).toLocaleString() : escapeHtml(row.issued)) : ""}</td>
+        <td>
+          <button class="btn-details" data-desc="${escapeHtml(row.desc).replace(/"/g,'&quot;')}" onclick="showComplaintDetails(this)">Details</button>
+        </td>
+        <td>
+          <span class="status-indicator" style="background:${statusColor};"></span>
+          <span>${escapeHtml(row.status)}</span>
+        </td>
+        <td>
+          <select class="status-action">
+            <option value="Pending" ${row.status==="Pending" ? "selected":""}>Pending</option>
+            <option value="Solved" ${row.status==="Solved" ? "selected":""}>Solved</option>
+            <option value="Unsolved" ${row.status==="Unsolved" ? "selected":""}>Unsolved</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn-submit">Submit</button>
+        </td>
+      </tr>`;
+  });
+
+  // Wire up the status Submit btns
+  document.querySelectorAll("#complaintsTable .btn-submit").forEach(btn => {
+    btn.onclick = async function() {
+      const tr = btn.closest("tr");
+      const complaintId = tr.getAttribute("data-complaint-id");
+      const select = tr.querySelector(".status-action");
+      const newStatus = select.value;
+      btn.disabled = true; btn.textContent = "Updating...";
+      try {
+        await updateComplaintStatus(complaintId, newStatus);
+        alert("Status updated!");
+        handleSearchOrFilter();
+      } catch (err) {
+        alert("Failed to update status.");
+        console.error(err);
+      } finally {
+        btn.disabled = false; btn.textContent = "Submit";
+      }
+    }
+  });
+}
+
+window.showComplaintDetails = function(btn) {
+  alert(btn.getAttribute("data-desc"));
+}
+
+function populateClassroomFilter(data) {
+  const sel = document.getElementById("classroomFilter");
+  const oldVal = sel.value || "";
+  sel.innerHTML = '<option value="">ClassRoom</option>';
+  ["ClassRoom","College","Management","Teacher","Other"].forEach(type => {
+    sel.innerHTML += `<option value="${escapeHtml(type)}"${type === oldVal ? " selected":""}>${escapeHtml(type)}</option>`;
+  });
+  sel.value = oldVal;
+}
+
+async function loadComplaints(query = "", type = "") {
+  try {
+    const token = localStorage.getItem("token");
+    let url = `/api/staff/complaints?search=${encodeURIComponent(query)}`;
+    if (type) url += `&type=${encodeURIComponent(type)}`;
+    const res = await fetch(url, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const complaints = await res.json();
+    renderComplaintsTable(complaints);
+    populateClassroomFilter(complaints);
+  } catch (error) {
+    console.error('Failed to load complaints:', error);
+    const tbody = document.querySelector("#complaintsTable tbody");
+    tbody.innerHTML = '<tr><td colspan="9" style="color:red;">Error fetching complaints.</td></tr>';
+  }
+}
+
+function handleSearchOrFilter() {
+  const query = document.getElementById("searchInput").value.trim();
+  const classroom = document.getElementById("classroomFilter").value;
+  loadComplaints(query, classroom);
+}
+
+// Update complaint status in DB
+async function updateComplaintStatus(id, newStatus) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`/api/staff/complaints/${id}/status`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({ status: newStatus })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Error updating status");
+  }
+  return res.json();
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  loadComplaints();
+  document.getElementById("searchBtn").addEventListener("click", handleSearchOrFilter);
+  document.getElementById("filterBtn").addEventListener("click", handleSearchOrFilter);
+  document.getElementById("searchInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") handleSearchOrFilter();
+  });
+});
+</script>
+
+  </body>
+</html>

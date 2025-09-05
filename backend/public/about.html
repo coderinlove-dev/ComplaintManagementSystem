@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complaint Management System</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+     
+      main {
+      max-width: 750px;
+      margin: 2.5rem auto 1.5rem auto;
+      background: #fff;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(44, 59, 98, 0.05);
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.6rem;
+      color: #223454;
+    }
+    .subtitle {
+      color: #3bb77e;
+      font-size: 1.2rem;
+      margin-bottom: 1.8rem;
+      letter-spacing: 0.5px;
+    }
+    .about-section {
+      margin-bottom: 2.2rem;
+    }
+    .about-section h2 {
+      font-size: 1.28rem;
+      margin-bottom: 0.6rem;
+      color: #223454;
+      border-left: 5px solid #3bb77e;
+      padding-left: 8px;
+      font-weight: 600;
+    }
+    .about-section p {
+      line-height: 1.68;
+      margin-bottom: 0.5rem;
+      color: #434c5e;
+    }
+    .features-list {
+      list-style: none;
+      padding: 0;
+      margin: 1.2rem 0 0 0;
+      display: grid;
+      gap: 16px;
+    }
+    .features-list li {
+      background: #f4f8fa;
+      border-left: 4px solid #3bb77e;
+      padding: 12px 15px;
+      border-radius: 8px;
+      color: #223454;
+      font-weight: 500;
+    }
+    .team-section {
+      margin-top: 2.5rem;
+    }
+    .team-section h2 {
+      font-size: 1.18rem;
+      color: #28805e;
+      margin-bottom: 0.6rem;
+    }
+    .team-members {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+    .team-card {
+      background: #eef5fa;
+      border-radius: 9px;
+      padding: 0.9rem 1.1rem;
+      box-shadow: 0 1px 7px rgba(44, 59, 98, 0.07);
+      margin-bottom: 8px;
+      color: #24344a;
+      font-weight: 500;
+      flex: 1;
+      min-width: 150px;
+    }
+    footer {
+      text-align: center;
+      background: #f5f7fa;
+      color: #888;
+      padding: 18px 0;
+      margin-top: auto;
+      font-size: 1rem;
+      border-top: 1px solid #e9ecf2;
+      letter-spacing: 0.3px;
+    }
+    @media (max-width: 650px) {
+      main {
+        padding: 1.1rem 0.5rem;
+        margin: 1.3rem 1vw;
+      }
+      .team-members { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2>Complaint System</h2>
+    </div>
+    <ul class="nav-right">
+      <li><a href="landingpage.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="registeruser.html">Register</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h1>About Complaint Management System</h1>
+    <div class="subtitle">Bringing campus voices together — simply and digitally.</div>
+
+    <section class="about-section">
+      <h2>Our Mission</h2>
+      <p>The Complaint Management System is designed for <strong>students and staff</strong> of our college to easily raise concerns, monitor issue progress, and receive timely resolutions — all online.</p>
+      <p>Our aim is to improve transparency, foster quick response, and ensure every member of our campus community feels heard.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>Key Features</h2>
+      <ul class="features-list">
+        <li>Simple, user-friendly interface to submit complaints in seconds.</li>
+        <li>Real-time status tracking: See if your complaint is pending, under review, or resolved.</li>
+        <li>Separate dashboards for students, staff, and administrators.</li>
+        <li>Data privacy & security: Your details and issues are handled with care.</li>
+        <li>Quick login/register with college email & credentials.</li>
+      </ul>
+    </section>
+
+    <section class="about-section">
+      <h2>How It Works</h2>
+      <p>1. Register or log in using your college email.<br>
+         2. Submit your concern — instantly.<br>
+         3. Track its progress from your dashboard.<br>
+         4. Receive resolution updates and final response, all digitally.</p>
+    </section>
+
+    <section class="team-section">
+      <h2>Project Team</h2>
+      <div class="team-members">
+        <div class="team-card">
+          <b>Bhavani Singh </b><b> &  Samarth Redij</b><br>
+          <u>Project Developer</u>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <footer>
+    &copy; 2025 Regal College. All rights reserved.
+  </footer>
+</body>
+</html>

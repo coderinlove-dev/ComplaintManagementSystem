@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard - Complaint System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="userdashboard.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Container -->
+  <main>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="userdashboard.html">Profile</a></li>
+        <hr>
+        <li><a href="addcomplaint.html">Add Complaint</a></li>
+        <hr>
+        <li><a href="unsolvedcomplaint.html">Unsolved Complaints</a></li>
+        <hr>
+        <li><a href="solvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+
+    <main class="dashboard-content">
+      <h2>Your Profile</h2>
+      <form>
+        <label>Username</label>
+        <input type="text" name="username" value="User Name " readonly>
+
+        <label>Email</label>
+        <input type="email" name="email" value="user@mail.com" readonly>
+
+        <label>First Name</label>
+        <input type="text" name="firstname" value="User" readonly>
+
+        <label>Last Name</label>
+        <input type="text" name="lastname" value="Surname" readonly>
+
+        <label>College</label>
+        <input type="text" name="college" value="Regal College Of Technology" readonly>
+
+        <label>Contact Number</label>
+        <input type="text" name="contact" value="1452221450" readonly>
+
+        <label>Branch</label>
+        <input type="text" name="branch" value="User Branch" readonly>
+      </form>
+    </main>
+  </div>
+</main>
+  <!-- Footer -->
+  <footer>
+    &copy; Regal College. All rights reserved.
+  </footer>
+
+ <script>
+async function loadUserProfile() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        document.getElementById("welcomeUser").textContent = "Welcome: Guest";
+        return;
+    }
+    try {
+        const response = await fetch('http://localhost:5000/api/user/me', {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+        if (!response.ok) throw new Error('Unauthorized');
+        const userData = await response.json();
+        document.getElementById("welcomeUser").textContent = `Welcome: ${userData.username || userData.name || ""}`;
+
+      
+        const inputs = document.querySelectorAll("form input");
+        if (inputs.length >= 7) {
+            inputs[0].value = userData.username || "";
+            inputs[1].value = userData.email || "";
+            inputs[2].value = userData.first_name || "";
+            inputs[3].value = userData.last_name || "";
+            inputs[4].value = userData.college || "Regal College Of Technology";
+            inputs[5].value = userData.roll_number || "";
+            inputs[6].value = userData.branch || "";
+        }
+    } catch (error) {
+        document.getElementById("welcomeUser").textContent = "Welcome: Guest";
+    }
+}
+loadUserProfile();
+</script>
+
+</body>
+</html>

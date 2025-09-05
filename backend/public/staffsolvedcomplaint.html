@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard - Complaint System</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    
+    .main-content h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #333;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      padding: 10px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table#solvedTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+   table#solvedTable thead {
+  background-color: #f4f4f4;  
+  }
+
+  table#solvedTable thead th {
+  color: #333;               
+  font-weight: 700;
+  }
+
+    table#solvedTable th, table#solvedTable td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table#solvedTable tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table#solvedTable tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <h2>Complaint System</h2>
+  <ul class="nav-right">
+    <li><a href="staffdashboard.html">Profile</a></li>
+    <li><a href="logout.html">Logout</a></li>
+  </ul>
+</nav>
+
+<!-- Main Container -->
+<main>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="staffdashboard.html">Statistics</a></li>
+        <hr>
+        <li><a href="allcomplaints.html">All Complaints</a></li>
+        <hr>
+        <li><a href="staffsolvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <h1><strong>Solved Complaints</strong></h1>
+      <div class="table-container">
+        <table id="solvedTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Subject</th>
+              <th>Complaint Type</th>
+              <th>Issued Date</th>
+              <th>Solved Date</th>
+              <th>Description</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Solved complaints will be dynamically inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer>
+   &copy; Regal College. All rights reserved.
+</footer>
+
+<script>
+async function setSidebarUsername() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/staff/profile', {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const sidebarWelcome = document.getElementById("welcomeUser");
+    if (sidebarWelcome) {
+      sidebarWelcome.textContent = "Welcome, " + (data.name || "Staff");
+    }
+  } catch {}
+}
+setSidebarUsername();
+
+// Fetch all solved complaints and populate table
+async function loadSolvedComplaints() {
+  const token = localStorage.getItem('token');
+  const tbody = document.querySelector("#solvedTable tbody");
+  try {
+    const res = await fetch('/api/staff/complaints/solved', {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const data = await res.json();
+    tbody.innerHTML = "";
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No solved complaints found.</td></tr>';
+      return;
+    }
+    data.forEach((item, idx) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.user}</td>
+        <td>${item.subject}</td>
+        <td>${item.type}</td>
+        <td>${new Date(item.issuedDate).toLocaleDateString()}</td>
+        <td>${new Date(item.solvedDate).toLocaleDateString()}</td>
+        <td>${item.description}</td>
+        <td>${item.status}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:red;">Error loading solved complaints.</td></tr>';
+    console.error(err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadSolvedComplaints);
+</script>
+</body>
+</html>

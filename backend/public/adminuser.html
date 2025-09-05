@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Complaint Management System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+margin: 0;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: #f6f8fa;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+.admin-navbar {
+background: #34495e;
+color: #fff;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 2rem;
+}
+.admin-navbar .logo {
+font-weight: 700;
+font-size: 1.4rem;
+}
+.admin-navbar .top-actions a {
+color: #fff;
+margin-left: 18px;
+text-decoration: none;
+}
+.dashboard-layout {
+display: flex;
+flex: 1 0 auto;
+min-height: 0;
+}
+.admin-sidebar {
+background: #223454;
+color: #c8d3e3;
+min-width: 200px;
+max-width: 240px;
+padding: 2rem 0 2rem 0;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+}
+.admin-sidebar h3 {
+margin-left: 2rem;
+font-size: 1rem;
+font-weight: 700;
+margin-bottom: 1.4rem;
+color: #fff;
+}
+.admin-sidebar ul {
+list-style: none;
+padding: 0;
+margin: 0;
+flex: 1;
+}
+.admin-sidebar li {
+margin-bottom: 1rem;
+}
+.admin-sidebar a {
+display: block;
+padding: 0.7rem 2rem;
+color: #c8d3e3;
+text-decoration: none;
+border-left: 3px solid transparent;
+transition: background 0.2s, border-color 0.2s;
+}
+.admin-sidebar a.active,
+.admin-sidebar a:hover {
+background: #293e63;
+border-left: 3px solid #3bb77e;
+color: #fff;
+}
+.admin-main-content {
+flex: 1;
+padding: 2rem 3vw;
+min-width: 0;
+background: #f6f8fa;
+display: flex;
+flex-direction: column;
+}
+.admin-section-title {
+font-size: 1.3rem;
+margin-bottom: 1.2rem;
+font-weight: 700;
+color: #223454;
+margin-top: 0;
+}
+.admin-table-container {
+width: 100%;
+overflow-x: auto;
+background: #fff;
+border-radius: 8px;
+box-shadow: 0 2px 8px 0 rgba(60,80,120,0.05);
+padding: 1rem 0.5rem 1.5rem 0.5rem;
+margin-bottom: 2.5rem;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+background: #fff;
+min-width: 660px;
+}
+th, td {
+padding: 0.7rem 0.75rem;
+border-bottom: 1px solid #e8e8ef;
+text-align: left;
+}
+th {
+background: #f8f9fb;
+font-weight: 600;
+}
+.status-badge {
+display: inline-block;
+min-width: 78px;
+padding: 0.35em 0.8em;
+font-size: 0.98em;
+font-weight: 700;
+border-radius: 1em;
+text-align: center;
+background: #e0e8ed;
+color: #444b54;
+}
+.status-badge.Pending { background: #fae29c; color: #b58900; }
+.status-badge.Authorized { background: #b6face; color: #037c43; }
+.status-badge.Rejected { background: #fdcac6; color: #d42d25; }
+select.staff-auth-select {
+padding: 0.25em 0.5em;
+font-size: 1em;
+border-radius: 6px;
+border: 1px solid #bbb;
+background: #f4f8fa;
+}
+.delete-btn {
+color: #fff;
+background: #e74c3c;
+border: none;
+padding: 6px 14px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 1em;
+transition: background 0.15s;
+}
+.delete-btn:hover {
+background: #b93e34;
+}
+
+.filter-toolbar {
+display: flex;
+gap: 12px;
+align-items: center;
+margin-bottom: 1.4rem;
+flex-wrap: wrap;
+}
+.filter-input {
+padding: 8px 13px;
+font-size: 1rem;
+border: 1px solid #bbb;
+border-radius: 6px;
+min-width: 210px;
+background: #fff;
+}
+.filter-select {
+padding: 8px 12px;
+font-size: 1rem;
+border-radius: 6px;
+border: 1px solid #bbb;
+min-width: 130px;
+background: #fff;
+}
+.filter-btn {
+background: #3498db;
+color: #fff;
+font-size: 1rem;
+padding: 8px 24px;
+border-radius: 6px;
+border: 1px solid #217dbb;
+cursor: pointer;
+transition: background 0.2s;
+}
+.filter-btn:hover {
+background: #217dbb;
+}
+@media (max-width: 900px) {
+.dashboard-layout { flex-direction: column;}
+.admin-sidebar { flex-direction: row; min-width: 0; max-width: none; padding: 0.7rem 0; min-height: unset;}
+.admin-sidebar ul { display: flex; flex-wrap: wrap; }
+.admin-sidebar li { margin-bottom: 0; }
+.admin-sidebar a { padding: 0.7rem 1.25rem;}
+.filter-toolbar { flex-direction: column; align-items: flex-start; gap: 8px;}
+}
+@media (max-width: 600px) {
+.admin-navbar, .admin-main-content { padding-left: 1vw; padding-right: 1vw; }
+th, td { padding: 0.5rem 0.3rem;}
+.filter-input, .filter-select { min-width: 115px; }
+}
+</style>
+</head>
+<body>
+<nav class="admin-navbar">
+<span class="logo">Admin Dashboard</span>
+<span class="top-actions">
+<a href="admin.html">Admin</a>
+<a href="logout.html">Log out</a>
+</span>
+</nav>
+<div class="dashboard-layout">
+<aside class="admin-sidebar">
+<h3>Navigation</h3>
+<ul>
+<li><a href="admin.html">Dashboard</a></li>
+<li><a href="adminuser.html" class="active">Users</a></li>
+<li><a href="admincomplaints.html">Complaints</a></li>
+<li><a href="adminstatistics.html">Statistics</a></li>
+</ul>
+</aside>
+<div class="admin-main-content">
+<div class="admin-section-title">Staff/User Management</div>
+<div class="filter-toolbar">
+<input
+id="searchInput"
+class="filter-input"
+type="text"
+placeholder="Search by name or email"
+/>
+<select id="roleFilter" class="filter-select">
+<option value="">All Roles</option>
+<option value="Staff">Staff</option>
+<option value="user">Student</option>
+</select>
+<button class="filter-btn" onclick="handleFilter()">Filter</button>
+</div>
+<div class="admin-table-container">
+<table id="staffTable">
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Status</th>
+<th>Authorize</th>
+<th>Delete</th>
+</tr>
+</thead>
+<tbody>
+
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<script>
+
+function escapeHtml(text) {
+if (!text) return "";
+return text.replace(/[&<>"']/g, function(m) {
+return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+});
+}
+
+// Render the table rows for users (staff/students)
+function renderStaffTable(users) {
+const tbody = document.querySelector('#staffTable tbody');
+tbody.innerHTML = '';
+if (!users.length) {
+tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No users found.</td></tr>`;
+return;
+}
+users.forEach((u, i) => {
+tbody.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${escapeHtml(u.name)}</td>
+<td>${escapeHtml(u.email)}</td>
+<td>${escapeHtml(u.role)}</td>
+<td>
+${u.role && u.role.toLowerCase() === "staff"
+? `<span class="status-badge ${escapeHtml(u.status)}">${escapeHtml(u.status)}</span>`
+: `<span class="status-badge" style="background:#dde3ea;color:#428;"><b>N/A</b></span>`
+}
+</td>
+<td>
+${u.role && u.role.toLowerCase() === "staff"
+? `<select class="staff-auth-select" data-uid="${u.id}" data-curr="${u.status}">
+<option value="Pending" ${u.status==="Pending"?"selected":""}>Pending</option>
+<option value="Authorized" ${u.status==="Authorized"?"selected":""}>Authorized</option>
+<option value="Rejected" ${u.status==="Rejected"?"selected":""}>Rejected</option>
+</select>`
+: `<span style="color:#aaa;">N/A</span>`
+}
+</td>
+<td>
+<button class="delete-btn" data-uid="${u.id}">Delete</button>
+</td>
+</tr>
+`;
+});
+// Attach event listeners to status dropdowns
+document.querySelectorAll('.staff-auth-select').forEach(sel => {
+sel.onchange = async function() {
+const userId = this.getAttribute('data-uid');
+const newStatus = this.value;
+const prev = this.getAttribute('data-curr');
+if (prev === newStatus) return;
+// Confirm
+if (!confirm(`Set staff status to "${newStatus}"?`)) { this.value = prev; return; }
+this.disabled = true;
+try {
+await authorizeUser(userId, newStatus);
+this.setAttribute('data-curr', newStatus);
+alert("Status updated!");
+await loadUsers();
+} catch (e) {
+alert("Failed to update status: " + (e.message||""));
+this.value = prev;
+} finally {
+this.disabled = false;
+}
+};
+});
+// Attach event listeners to Delete buttons
+document.querySelectorAll('.delete-btn').forEach(btn => {
+btn.onclick = async function() {
+const uid = btn.getAttribute('data-uid');
+if (!confirm("Are you sure you want to delete this user?")) return;
+btn.disabled = true; btn.textContent = "Deleting...";
+try {
+await deleteUser(uid);
+alert("User deleted.");
+await loadUsers();
+} catch (e) {
+alert("Failed to delete user:" + (e.message || ""));
+} finally {
+btn.disabled = false; btn.textContent = "Delete";
+}
+};
+});
+}
+
+// Backend: Authorize/Pending/Reject staff status
+async function authorizeUser(userId, value) {
+const token = localStorage.getItem("token");
+const res = await fetch(`/api/admin/users/${userId}/status`, {
+method: 'PATCH',
+headers: {
+'Content-Type': 'application/json',
+Authorization: 'Bearer ' + token
+},
+body: JSON.stringify({ status: value })
+});
+if (!res.ok) {
+const err = await res.json().catch(()=>({}));
+throw new Error(err.message || "Status update failed");
+}
+return res.json();
+}
+
+// Backend: Delete user
+async function deleteUser(userId) {
+const token = localStorage.getItem("token");
+const res = await fetch(`/api/admin/users/${userId}`, {
+method: 'DELETE',
+headers: { Authorization: 'Bearer ' + token }
+});
+if (!res.ok) {
+const err = await res.json().catch(()=>({}));
+throw new Error(err.message || "Delete failed");
+}
+return res.json();
+}
+
+// Backend: Get users, search, filter
+async function loadUsers() {
+const token = localStorage.getItem("token");
+const query = document.getElementById('searchInput').value.trim();
+const role = document.getElementById('roleFilter').value;
+let url = `/api/admin/users?`;
+if (query) url += `search=${encodeURIComponent(query)}&`;
+if (role) url += `role=${encodeURIComponent(role)}&`;
+try {
+const res = await fetch(url, {
+headers: { Authorization: 'Bearer ' + token }
+});
+const users = await res.json();
+renderStaffTable(users);
+} catch (err) {
+const tbody = document.querySelector('#staffTable tbody');
+tbody.innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;">Failed to load users</td></tr>`;
+console.error("Error loading users:", err);
+}
+}
+
+// Trigger load on input/filter change
+function handleFilter() {
+loadUsers();
+}
+
+// Main event bindings
+document.addEventListener('DOMContentLoaded', function() {
+loadUsers();
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+if(e.key === 'Enter') loadUsers();
+});
+document.getElementById('roleFilter').addEventListener('change', loadUsers);
+const btn = document.querySelector('.filter-btn');
+if (btn) btn.addEventListener('click', loadUsers);
+});
+</script>
+</body>
+</html>

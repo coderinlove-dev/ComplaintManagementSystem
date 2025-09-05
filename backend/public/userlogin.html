@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Login | Complaint Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2>Complaint System</h2>
+    </div>
+    <ul class="nav-right">
+      <li><a href="landingpage.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="registeruser.html">Register</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <!-- User Login Form -->
+  <main>
+  <section class="login-form">
+    <h2>Student/Staff Login</h2>
+<form id="login-form">
+  <input type="text" placeholder="Email" name="email" required>
+  <input type="password" placeholder="Password" name="password" required>
+  <button type="submit" class="btn blue">Login</button>
+</form>
+
+    <p class="form-link">Don't have an account? <a href="registeruser.html">Register here</a></p>
+  </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p> &copy; Regal College. All rights reserved.</p>
+  </footer>
+<script>
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.querySelector('[name="email"]').value;
+    const password = document.querySelector('[name="password"]').value;
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.user) {
+          
+            if (data.access_token) {
+                localStorage.setItem('token', data.access_token);
+            }
+            if (data.refresh_token) {
+                localStorage.setItem('refresh_token', data.refresh_token);
+            }
+
+            if (data.user.role === 'user') {
+                window.location.href = 'userdashboard.html';
+            } else if (data.user.role === 'staff') {
+                window.location.href = 'staffdashboard.html';
+            } else {
+                alert('Unknown user role.');
+            }
+        } else {
+            alert(data.message || 'Login failed.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Login failed. Please try again.');
+    }
+});
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard – Complaints Statistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f6f8fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-navbar {
+      background: #34495e;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+    .admin-navbar .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    .admin-navbar .top-actions a {
+      color: #fff;
+      margin-left: 18px;
+      text-decoration: none;
+    }
+    .dashboard-layout {
+      display: flex;
+      flex: 1 0 auto;
+      min-height: 0;
+    }
+    .admin-sidebar {
+      background: #223454;
+      color: #c8d3e3;
+      min-width: 200px;
+      max-width: 240px;
+      padding: 2rem 0 2rem 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .admin-sidebar h3 {
+      margin-left: 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.4rem;
+      color: #fff;
+    }
+    .admin-sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+    }
+    .admin-sidebar li {
+      margin-bottom: 1rem;
+    }
+    .admin-sidebar a {
+      display: block;
+      padding: 0.7rem 2rem;
+      color: #c8d3e3;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .admin-sidebar a.active,
+    .admin-sidebar a:hover {
+      background: #293e63;
+      border-left: 3px solid #3bb77e;
+      color: #fff;
+    }
+    .admin-main-content {
+      flex: 1;
+      padding: 2rem 3vw;
+      min-width: 0;
+      background: #f6f8fa;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      font-weight: 700;
+      color: #223454;
+      margin-top: 0;
+    }
+    .stats-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem 2.3rem;
+      margin-bottom: 2.3rem;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 9px;
+      box-shadow: 0 2px 10px 0 rgba(60,80,120,0.06);
+      padding: 1.2rem 2rem 1.1rem;
+      min-width: 170px;
+      max-width: 240px;
+      flex: 1 0 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .stat-card .stat-label {
+      font-size: 1.01rem;
+      color: #444a52;
+      margin-bottom: 0.27rem;
+      font-weight: 500;
+    }
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2db782;
+    }
+    .divider {
+      width: 100%;
+      border: none;
+      border-top: 1.5px solid #d5d9e2;
+      margin: 1.7rem 0 2rem 0;
+    }
+    .stat-table-toolbar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .stat-table-input {
+      padding: 8px 15px;
+      font-size: 1rem;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      min-width: 210px;
+      background: #fff;
+    }
+    .stat-table-select {
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      min-width: 130px;
+      background: #fff;
+    }
+    .stat-table-btn {
+      background: #3498db;
+      color: #fff;
+      font-size: 1rem;
+      padding: 8px 24px;
+      border-radius: 6px;
+      border: 1px solid #217dbb;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .stat-table-btn:hover {
+      background: #217dbb;
+    }
+    .stat-table-container {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px 0 rgba(60,80,120,0.05);
+      padding: 1rem 0.5rem 1.5rem 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 540px;
+    }
+    th, td {
+      padding: 0.7rem 0.75rem;
+      border-bottom: 1px solid #e8e8ef;
+      text-align: left;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    th {
+      background: #f8f9fb;
+      font-weight: 600;
+      user-select: none;
+    }
+    .stats-badge {
+      display: inline-block;
+      padding: 0.2em 0.85em;
+      font-size: 0.95em;
+      font-weight: 600;
+      border-radius: 1em;
+      text-align: center;
+      background: #e4ecf7;
+      color: #2865b9;
+    }
+    .stats-badge.Staff    { background: #b6face; color: #0384a1;}
+    .stats-badge.Student  { background: #fae29c; color: #b58900;}
+    .overdue { color: #bc1e4b; font-weight: 600;}
+    .btn-sort {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #555;
+      font-size: 1rem;
+      vertical-align: middle;
+    }
+    .btn-sort.active {
+      color: #2db7b7;
+      font-weight: bold;
+    }
+    @media (max-width: 900px) {
+      .dashboard-layout { flex-direction: column;}
+      .admin-sidebar { flex-direction: row; min-width: 0; max-width: none; padding: 0.7rem 0; min-height: unset;}
+      .admin-sidebar ul { display: flex; flex-wrap: wrap; }
+      .admin-sidebar li { margin-bottom: 0; }
+      .admin-sidebar a { padding: 0.7rem 1.25rem;}
+      .stats-cards {gap: 0.5rem;}
+      .stat-card {max-width: 99vw;}
+    }
+    @media (max-width: 600px) {
+      .admin-navbar, .admin-main-content { padding-left: 1vw; padding-right: 1vw; }
+      th, td { padding: 0.5rem 0.3rem;}
+      .stat-table-input, .stat-table-select { min-width: 105px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="admin-navbar">
+    <span class="logo">Admin Dashboard</span>
+    <span class="top-actions">
+      <a href="admin.html">Admin</a>
+      <a href="logout.html">Log out</a>
+    </span>
+  </nav>
+  <div class="dashboard-layout">
+    <aside class="admin-sidebar">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="admin.html">Dashboard</a></li>
+        <li><a href="adminuser.html">Users</a></li>
+        <li><a href="admincomplaints.html">Complaints</a></li>
+        <li><a href="adminstatistics.html" class="active">Statistics</a></li>
+      </ul>
+    </aside>
+    <div class="admin-main-content">
+      <div class="admin-section-title">Complaints Statistics</div>
+      
+      <div class="stats-cards" id="statsCards">
+        
+      </div>
+      <hr class="divider" />
+      
+      <div class="stats-cards" id="typeCards"></div>
+      <div class="stats-cards" id="roleCards"></div>
+      <hr class="divider" />
+      
+      <div class="stat-table-toolbar">
+        <input
+          id="searchInput"
+          class="stat-table-input"
+          type="text"
+          placeholder="Search Complaints by subject, user or ID"
+        />
+        <select id="statusFilter" class="stat-table-select">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Solved">Solved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <select id="roleFilter" class="stat-table-select">
+          <option value="">All Roles</option>
+          <option value="Student">Student</option>
+          <option value="Staff">Staff</option>
+        </select>
+        <button class="stat-table-btn" onclick="handleMainTableFilter()">Filter</button>
+      </div>
+      <div class="stat-table-container">
+        <div style="font-weight:600; color:#223454; margin-bottom:8px;">Longest Open Complaints</div>
+        <table id="longestOpenTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Subject <button class="btn-sort" onclick="sortMainTable('subject')">&#8645;</button></th>
+              <th>Status <button class="btn-sort" onclick="sortMainTable('status')">&#8645;</button></th>
+              <th>User <button class="btn-sort" onclick="sortMainTable('user')">&#8645;</button></th>
+              <th>Role</th>
+              <th>Days Open <button class="btn-sort" onclick="sortMainTable('daysOpen')">&#8645;</button></th>
+              <th>Assigned To</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="stat-table-container">
+        <div style="font-weight:600; color:#223454; margin-bottom:8px;">Recently Closed Complaints</div>
+        <table id="recentClosedTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Subject</th>
+              <th>User</th>
+              <th>Role</th>
+              <th>Date Solved</th>
+              <th>Assigned To</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="stat-table-container">
+        <div style="font-weight:600; color:#223454; margin-bottom:8px;">Staff Assignment Stats</div>
+        <table id="staffAssignTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Staff Name</th>
+              <th>Assigned Complaints <button class="btn-sort" onclick="sortStaffAssignTable('assigned')">&#8645;</button></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script>
+function escapeHtml(text) {
+  if (!text) return "";
+  return text.replace(/[&<>"']/g, function(m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+let longestOpenTableData = [];
+let staffAssignTableData = [];
+let currentSortCol = null;
+let currentSortDir = 'asc';
+
+
+async function renderStats() {
+  const token = localStorage.getItem('token');
+
+ 
+  try {
+    const sres = await fetch('/api/admin/statistics', {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const s = await sres.json();
+
+    document.getElementById('statsCards').innerHTML = `
+      <div class="stat-card"><span class="stat-label">Total Complaints</span> <span class="stat-value">${s.totalComplaints}</span></div>
+      <div class="stat-card"><span class="stat-label">Pending</span> <span class="stat-value">${s.pending}</span></div>
+      <div class="stat-card"><span class="stat-label">In Progress</span> <span class="stat-value">${s.inProgress}</span></div>
+      <div class="stat-card"><span class="stat-label">Solved</span> <span class="stat-value">${s.solved}</span></div>
+      <div class="stat-card"><span class="stat-label">Rejected</span> <span class="stat-value">${s.rejected}</span></div>
+      <div class="stat-card"><span class="stat-label">Avg. Resolution Days</span> <span class="stat-value">${s.avgResolutionDays}</span></div>
+      <div class="stat-card"><span class="stat-label">Unassigned</span> <span class="stat-value">${s.unassigned}</span></div>
+    `;
+
+    // By Type (fix to use your names: Classroom, College, Management, Teacher, Other)
+    const displayedTypes = ["Classroom", "College", "Management", "Teacher", "Other"];
+    const typeMap = {};
+    s.byType.forEach(t => { typeMap[t.type] = t.count; });
+    document.getElementById('typeCards').innerHTML =
+      displayedTypes.map(type =>
+        `<div class="stat-card"><span class="stat-label">${type}</span> <span class="stat-value">${typeMap[type]||0}</span></div>`
+      ).join('');
+
+    // By Role
+    const roleList = ['Student', 'Staff'];
+    const roleMap = {};
+    s.byRole.forEach(r => { roleMap[r.role]=r.count; });
+    document.getElementById('roleCards').innerHTML =
+      roleList.map(role =>
+        `<div class="stat-card"><span class="stat-label">${role}</span> <span class="stat-value">${roleMap[role]||0}</span></div>`
+      ).join('');
+  } catch (e) {
+    document.getElementById('statsCards').innerHTML = "<div style='color:red;'>Error loading stat cards</div>";
+    document.getElementById('typeCards').innerHTML = "";
+    document.getElementById('roleCards').innerHTML = "";
+  }
+
+  // 2. Longest Open Complaints table
+  try {
+    const params = getMainTableFilterParams();
+    const lres = await fetch('/api/admin/statistics/longest-open' + params, {
+      headers: { Authorization: "Bearer " + token }
+    });
+    longestOpenTableData = await lres.json();
+    renderMainTable(longestOpenTableData);
+  } catch (e) {
+    document.getElementById('longestOpenTable').querySelector('tbody').innerHTML =
+      `<tr><td colspan="7" style="color:red;">Error loading table</td></tr>`;
+  }
+
+  // 3. Recently Closed Table
+  try {
+    const cres = await fetch('/api/admin/statistics/recently-closed', {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const closedRows = await cres.json();
+    document.getElementById('recentClosedTable').querySelector('tbody').innerHTML =
+      closedRows.map((c,i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td>${escapeHtml(c.subject)}</td>
+          <td>${escapeHtml(c.user)}</td>
+          <td><span class="stats-badge ${escapeHtml(c.role)}">${escapeHtml(c.role)}</span></td>
+          <td>${new Date(c.closed).toLocaleDateString()}</td>
+          <td>${escapeHtml(c.assignedTo || "-")}</td>
+        </tr>
+      `).join('');
+  } catch (e) {
+    document.getElementById('recentClosedTable').querySelector('tbody').innerHTML =
+      `<tr><td colspan="6" style="color:red;">Error loading data</td></tr>`;
+  }
+
+  // 4. Staff Assignment Table
+  try {
+    const sres = await fetch('/api/admin/statistics/staff-assignment', {
+      headers: { Authorization: "Bearer " + token }
+    });
+    staffAssignTableData = await sres.json();
+    renderStaffAssignTable(staffAssignTableData);
+  } catch (e) {
+    document.getElementById('staffAssignTable').querySelector('tbody').innerHTML =
+      `<tr><td colspan="3" style="color:red;">Error loading data</td></tr>`;
+  }
+}
+
+// Helper to build query string for main table filtering
+function getMainTableFilterParams() {
+  let qs = '';
+  const q = document.getElementById('searchInput').value.trim();
+  const fStatus = document.getElementById('statusFilter').value;
+  const fRole = document.getElementById('roleFilter').value;
+  if (q)      qs += (qs?'&':'?') + 'search=' + encodeURIComponent(q);
+  if (fStatus)qs += (qs?'&':'?') + 'status=' + encodeURIComponent(fStatus);
+  if (fRole)  qs += (qs?'&':'?') + 'role=' + encodeURIComponent(fRole);
+  return qs;
+}
+
+// Table renderers and sorting
+function renderMainTable(data) {
+  const tbody = document.getElementById('longestOpenTable').querySelector('tbody');
+  tbody.innerHTML = data.map((row,i) => `
+    <tr>
+      <td>${row.idx}</td>
+      <td>${escapeHtml(row.subject)}</td>
+      <td>${escapeHtml(row.status)}</td>
+      <td>${escapeHtml(row.user)}</td>
+      <td><span class="stats-badge ${escapeHtml(row.role)}">${escapeHtml(row.role)}</span></td>
+      <td${row.daysOpen>14?' class="overdue"':''}>${row.daysOpen}</td>
+      <td>${escapeHtml(row.assignedTo || "-")}</td>
+    </tr>
+  `).join('');
+}
+function sortMainTable(col) {
+  let dir = (currentSortCol === col && currentSortDir === 'asc') ? 'desc' : 'asc';
+  currentSortCol = col;
+  currentSortDir = dir;
+  const data = [...longestOpenTableData];
+  data.sort((a,b) => {
+    if (col === 'daysOpen' || col === 'idx') {
+      return dir === 'asc' ? a[col]-b[col] : b[col]-a[col];
+    } else {
+      return dir === 'asc'
+        ? String(a[col]).localeCompare(String(b[col]))
+        : String(b[col]).localeCompare(String(a[col]));
+    }
+  });
+  renderMainTable(data);
+}
+
+// Staff assigned table
+let staffAssignSortDir = 'desc';
+function renderStaffAssignTable(data) {
+  const tbody = document.getElementById('staffAssignTable').querySelector('tbody');
+  tbody.innerHTML = data.map((x,i) => `
+    <tr>
+      <td>${x.idx}</td>
+      <td>${escapeHtml(x.staff)}</td>
+      <td>${x.assigned}</td>
+    </tr>
+  `).join('');
+}
+function sortStaffAssignTable(col) {
+  staffAssignSortDir = (staffAssignSortDir === 'asc') ? 'desc' : 'asc';
+  const arr = [...staffAssignTableData];
+  arr.sort((a,b) => (
+    staffAssignSortDir==='asc'
+    ? a[col]-b[col]
+    : b[col]-a[col]
+  ));
+  renderStaffAssignTable(arr);
+}
+
+// Main events
+document.addEventListener('DOMContentLoaded', renderStats);
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+  if(e.key==='Enter') renderStats();
+});
+document.getElementById('statusFilter').addEventListener('change', renderStats);
+document.getElementById('roleFilter').addEventListener('change', renderStats);
+
+</script>
+
+  </body>
+</html>

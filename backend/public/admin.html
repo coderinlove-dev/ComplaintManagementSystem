@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard – Complaint Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f6f8fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-navbar {
+      background: #34495e;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+    .admin-navbar .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    .admin-navbar .top-actions a {
+      color: #fff;
+      margin-left: 18px;
+      text-decoration: none;
+    }
+    .dashboard-layout {
+      display: flex;
+      flex: 1 0 auto;
+      min-height: 0;
+    }
+    .admin-sidebar {
+      background: #223454;
+      color: #c8d3e3;
+      min-width: 200px;
+      max-width: 240px;
+      padding: 2rem 0 2rem 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .admin-sidebar h3 {
+      margin-left: 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.4rem;
+      color: #fff;
+    }
+    .admin-sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+    }
+    .admin-sidebar li {
+      margin-bottom: 1rem;
+    }
+    .admin-sidebar a {
+      display: block;
+      padding: 0.7rem 2rem;
+      color: #c8d3e3;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .admin-sidebar a.active,
+    .admin-sidebar a:hover {
+      background: #293e63;
+      border-left: 3px solid #3bb77e;
+      color: #fff;
+    }
+    .admin-main-content {
+      flex: 1;
+      padding: 2rem 3vw;
+      min-width: 0;
+      background: #f6f8fa;
+      display: flex;
+      flex-direction: column;
+    }
+    .dashboard-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .dashboard-card {
+      background: #fff;
+      border-radius: 9px;
+      box-shadow: 0 2px 10px 0 rgba(60,80,120,0.06);
+      padding: 1.2rem 2rem;
+      flex: 1 0 190px;
+      min-width: 180px;
+      max-width: 270px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .dashboard-card span {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2db782;
+    }
+    .dashboard-card .label {
+      font-size: 0.98rem;
+      color: #555;
+      margin-top: 0.6rem;
+      font-weight: 500;
+    }
+    .admin-section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      margin-top: 2rem;
+      font-weight: 700;
+      color: #223454;
+    }
+    .admin-table-container {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px 0 rgba(60,80,120,0.05);
+      padding: 1rem 0.5rem 1.5rem 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 620px;
+    }
+    th, td {
+      padding: 0.7rem 0.75rem;
+      border-bottom: 1px solid #e8e8ef;
+      text-align: left;
+    }
+    th {
+      background: #f8f9fb;
+      font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .dashboard-cards { flex-direction: column; gap: 1rem; }
+      .dashboard-card { max-width: 100%; }
+      .dashboard-layout { flex-direction: column;}
+      .admin-sidebar { flex-direction: row; min-width: 0; max-width: none; padding: 0.7rem 0; min-height: unset;}
+      .admin-sidebar ul { display: flex; flex-wrap: wrap; }
+      .admin-sidebar li { margin-bottom: 0; }
+      .admin-sidebar a { padding: 0.7rem 1.25rem;}
+    }
+    @media (max-width: 600px) {
+      .admin-navbar, .admin-main-content { padding-left: 1vw; padding-right: 1vw; }
+      th, td { padding: 0.5rem 0.3rem;}
+    }
+  </style>
+</head>
+<body>
+  <nav class="admin-navbar">
+    <span class="logo">Admin Dashboard</span>
+    <span class="top-actions">
+      <a href="admin.html">Admin</a>
+      <a href="logout.html">Log out</a>
+    </span>
+  </nav>
+  <div class="dashboard-layout">
+    <aside class="admin-sidebar">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="admin.html" class="active">Dashboard</a></li>
+        <li><a href="adminuser.html">Users</a></li>
+        <li><a href="admincomplaints.html">Complaints</a></li>
+        <li><a href="adminstatistics.html">Statistics</a></li>
+      </ul>
+    </aside>
+    <div class="admin-main-content">
+      <!-- Dashboard cards -->
+      <div class="dashboard-cards">
+        <div class="dashboard-card">
+          <span id="totalUsers">120</span>
+          <span class="label">Total Users</span>
+        </div>
+        <div class="dashboard-card">
+          <span id="totalComplaints">54</span>
+          <span class="label">Total Complaints</span>
+        </div>
+        <div class="dashboard-card">
+          <span id="solvedComplaints">37</span>
+          <span class="label">Solved Complaints</span>
+        </div>
+        <div class="dashboard-card">
+          <span id="newComplaints">4</span>
+          <span class="label">New Complaints Today</span>
+        </div>
+      </div>
+      <!-- Recent Complaints Table -->
+      <div class="admin-section-title">Recent Complaints</div>
+      <div class="admin-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Subject</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>cpm02</td>
+              <td>Test Subject One</td>
+              <td>Dec. 15, 2022</td>
+              <td><span style="color:#f3c50b;font-weight:bold">Pending</span></td>
+              <td><a href="#" style="color:#2d90f9;">View</a></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>cpm09</td>
+              <td>Subject Five</td>
+              <td>Dec. 15, 2022</td>
+              <td><span style="color:#32c77f;font-weight:bold">Solved</span></td>
+              <td><a href="#" style="color:#2d90f9;">View</a></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>cpm10</td>
+              <td>Subject Six</td>
+              <td>Dec. 15, 2022</td>
+              <td><span style="color:#f34949;font-weight:bold">Unsolved</span></td>
+              <td><a href="#" style="color:#2d90f9;">View</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script>
+function escapeHtml(text) {
+  if (!text) return "";
+  return text.replace(/[&<>"']/g, function(m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+async function loadAdminDashboard() {
+  const token = localStorage.getItem("token");
+  // --- Fetch dashboard stats ---
+  try {
+    const statRes = await fetch("/api/admin/dashboard-stats", { headers: { "Authorization": "Bearer " + token } });
+    const stats = await statRes.json();
+    document.getElementById("totalUsers").textContent = stats.totalUsers ?? 0;
+    document.getElementById("totalComplaints").textContent = stats.totalComplaints ?? 0;
+    document.getElementById("solvedComplaints").textContent = stats.solvedComplaints ?? 0;
+    document.getElementById("newComplaints").textContent = stats.newComplaints ?? 0;
+  } catch (err) {
+    document.getElementById("totalUsers").textContent = "--";
+    document.getElementById("totalComplaints").textContent = "--";
+    document.getElementById("solvedComplaints").textContent = "--";
+    document.getElementById("newComplaints").textContent = "--";
+    console.error("Error loading dashboard stats:", err);
+  }
+  // --- Fetch recent complaints for table ---
+  try {
+    const tblRes = await fetch("/api/admin/recent-complaints", { headers: { "Authorization": "Bearer " + token } });
+    const tblData = await tblRes.json();
+    const tbody = document.querySelector(".admin-table-container tbody");
+    tbody.innerHTML = "";
+    if(!Array.isArray(tblData) || !tblData.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No complaints found.</td></tr>';
+      return;
+    }
+    tblData.forEach(r => {
+      let color = "#333";
+      if(r.status === "Pending") color = "#f3c50b";
+      else if(r.status === "Solved") color = "#32c77f";
+      else if(r.status === "Unsolved") color = "#f34949";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.number}</td>
+        <td>${escapeHtml(r.user)}</td>
+        <td>${escapeHtml(r.subject)}</td>
+        <td>${new Date(r.date).toLocaleDateString()}</td>
+        <td><span style="color:${color};font-weight:bold">${escapeHtml(r.status)}</span></td>
+        <td><a href="#" style="color:#2d90f9;" onclick="viewComplaintDetails(${r.id});return false;">View</a></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    const tbody = document.querySelector(".admin-table-container tbody");
+    tbody.innerHTML = '<tr><td colspan="6" style="color:red;">Error loading complaints.</td></tr>';
+    console.error("Error loading complaints:", err);
+  }
+}
+
+// Pop-up/modal for details
+window.viewComplaintDetails = async function(id) {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`/api/admin/complaints/${id}`, { headers: { "Authorization": "Bearer " + token } });
+    if (!res.ok) { alert("Complaint not found"); return; }
+    const d = await res.json();
+    alert(
+      "User: " + d.user + "\n" +
+      "Subject: " + d.subject + "\n" +
+      "Type: " + d.type + "\n" +
+      "Status: " + d.status + "\n" +
+      "Created: " + new Date(d.created_at).toLocaleString() + "\n" +
+      "Updated: " + new Date(d.updated_at).toLocaleString() + "\n" +
+      "Description:\n" + d.description
+    );
+  } catch (err) {
+    alert("Could not load details!");
+    console.error(err);
+  }
+};
+
+window.addEventListener("DOMContentLoaded", loadAdminDashboard);
+</script>
+
+</body>
+</html>

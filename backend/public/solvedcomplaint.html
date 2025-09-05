@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard - Complaint System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="userdashboard.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Container -->
+  <main>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="userdashboard.html">Profile</a></li>
+        <hr>
+        <li><a href="addcomplaint.html">Add Complaint</a></li>
+        <hr>
+        <li><a href="unsolvedcomplaint.html">Unsolved Complaints</a></li>
+        <hr>
+        <li><a href="solvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+
+<div class="main-content">
+  <h1><strong> Solved Complaints</strong></h1>
+  <div class="table-container">
+    <table id="solvedTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Subject</th>
+          <th>Complaint Type</th>
+          <th>Issued Date</th>
+          <th>Desc</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Solved complaints will be dynamically inserted here via JS -->
+      </tbody>
+    </table>
+  </div>
+</div>
+</main>
+  <!-- Footer -->
+  <footer>
+     &copy; Regal College. All rights reserved.
+  </footer>
+
+  <script>
+// Sidebar username
+async function setUsernameInSidebar() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res = await fetch('http://localhost:5000/api/user/me', {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return;
+    const userData = await res.json();
+    document.getElementById("welcomeUser").textContent =
+      "Welcome, " + (userData.first_name || userData.name || "User");
+  } catch {
+    
+  }
+}
+setUsernameInSidebar();
+
+// Load solved complaints on page load
+window.onload = function () {
+  const token = localStorage.getItem('token');
+  const tbody = document.querySelector('#solvedTable tbody');
+  fetch('http://localhost:5000/api/complaints/solved', {
+    headers: { "Authorization": "Bearer " + token }
+  })
+  .then(response => response.json())
+  .then(data => {
+    tbody.innerHTML = '';
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.user}</td>
+        <td>${item.subject}</td>
+        <td>${item.type}</td>
+        <td>${new Date(item.issued_date).toLocaleDateString()}</td>
+        <td>${item.description}</td>
+        <td>${item.status}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  })
+  .catch(err => {
+    tbody.innerHTML = '<tr><td colspan="7">Error loading solved complaints.</td></tr>';
+    console.error('Error loading complaints:', err);
+  });
+};
+</script>
+
+</body>
+</html>

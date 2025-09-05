@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard – Complaints Management (Assign to Staff)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f6f8fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-navbar {
+      background: #34495e;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+    .admin-navbar .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    .admin-navbar .top-actions a {
+      color: #fff;
+      margin-left: 18px;
+      text-decoration: none;
+    }
+    .dashboard-layout {
+      display: flex;
+      flex: 1 0 auto;
+      min-height: 0;
+    }
+    .admin-sidebar {
+      background: #223454;
+      color: #c8d3e3;
+      min-width: 200px;
+      max-width: 240px;
+      padding: 2rem 0 2rem 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .admin-sidebar h3 {
+      margin-left: 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.4rem;
+      color: #fff;
+    }
+    .admin-sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+    }
+    .admin-sidebar li {
+      margin-bottom: 1rem;
+    }
+    .admin-sidebar a {
+      display: block;
+      padding: 0.7rem 2rem;
+      color: #c8d3e3;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .admin-sidebar a.active,
+    .admin-sidebar a:hover {
+      background: #293e63;
+      border-left: 3px solid #3bb77e;
+      color: #fff;
+    }
+    .admin-main-content {
+      flex: 1;
+      padding: 2rem 3vw;
+      min-width: 0;
+      background: #f6f8fa;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      font-weight: 700;
+      color: #223454;
+      margin-top: 0;
+    }
+    .filter-toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
+    .filter-input {
+      padding: 8px 13px;
+      font-size: 1rem;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      min-width: 210px;
+      background: #fff;
+    }
+    .filter-select {
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      min-width: 130px;
+      background: #fff;
+    }
+    .filter-btn {
+      background: #3498db;
+      color: #fff;
+      font-size: 1rem;
+      padding: 8px 24px;
+      border-radius: 6px;
+      border: 1px solid #217dbb;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .filter-btn:hover {
+      background: #217dbb;
+    }
+    .admin-table-container {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px 0 rgba(60,80,120,0.05);
+      padding: 1rem 0.5rem 1.5rem 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 950px;
+    }
+    th, td {
+      padding: 0.7rem 0.75rem;
+      border-bottom: 1px solid #e8e8ef;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #f8f9fb;
+      font-weight: 600;
+    }
+    .status-badge {
+      display: inline-block;
+      min-width: 72px;
+      padding: 0.35em 0.8em;
+      font-size: 0.95em;
+      font-weight: 700;
+      border-radius: 1em;
+      text-align: center;
+    }
+    .status-badge.Pending     { background: #fae29c; color: #b58900; }
+    .status-badge["In Progress"] { background: #b5d1fc; color: #2256a8; }
+    .status-badge.Solved      { background: #a6f5c0; color: #037c43; }
+    .status-badge.Rejected    { background: #fdcac6; color: #d42d25; }
+    .status-badge.Overdue     { background: #f49cb3; color: #a6082b; }
+    .action-btn {
+      color: #fff;
+      background: #217dbb;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-right: 5px;
+      margin-bottom: 2px;
+      transition: background 0.15s;
+    }
+    .action-btn:hover {
+      background: #155fa0;
+    }
+    .delete-btn {
+      background: #e74c3c;
+    }
+    .delete-btn:hover {
+      background: #b93e34;
+    }
+    .modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top:0; width:100vw; height:100vh;
+      background: rgba(10, 20, 30, 0.38);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 10px;
+      max-width: 98vw;
+      min-width: 290px;
+      width: 470px;
+      margin: auto;
+      box-shadow: 0 8px 40px 0 rgba(60,80,120,0.13);
+      padding: 2rem 2.2rem 1.6rem 2.2rem;
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #1c2e40;
+    }
+    .modal-close {
+      font-size: 1.6rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #888;
+      margin-left: 30px;
+      line-height: 1;
+    }
+    .modal-row {
+      margin-bottom: 0.7rem;
+      font-size: 1.02rem;
+    }
+    .modal-label {
+      color: #555;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .modal-attachments a {
+      display:inline-block;
+      font-size:0.96em;
+      color: #217dbb;
+      text-decoration: underline;
+      margin-right: 7px;
+    }
+    .modal-history {
+      font-size: 0.97em;
+      background: #f7f7fb;
+      border-radius: 5px;
+      padding: 7px 11px 5px 11px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .update-action-area {
+      margin-top: 1.2rem;
+      margin-bottom: 0.7rem;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .update-action-area select, .update-action-area input, .update-action-area textarea {
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #bbb;
+      padding: 3px 8px;
+      min-width: 60px;
+    }
+    .update-action-area textarea {
+      min-width:160px;
+      resize: vertical;
+      min-height: 32px;
+      max-height: 100px;
+    }
+    @media (max-width: 900px) {
+      .dashboard-layout { flex-direction: column;}
+      .admin-sidebar { flex-direction: row; min-width: 0; max-width: none; padding: 0.7rem 0; min-height: unset;}
+      .admin-sidebar ul { display: flex; flex-wrap: wrap; }
+      .admin-sidebar li { margin-bottom: 0; }
+      .admin-sidebar a { padding: 0.7rem 1.25rem;}
+      .filter-toolbar { flex-direction: column; align-items: flex-start; gap: 8px;}
+    }
+    @media (max-width: 600px) {
+      .admin-navbar, .admin-main-content { padding-left: 1vw; padding-right: 1vw; }
+      th, td { padding: 0.5rem 0.3rem;}
+      .filter-input, .filter-select { min-width: 115px; }
+      .modal-content { min-width:0;width:95vw;padding: 1.1rem 1.2rem;}
+    }
+  </style>
+</head>
+<body>
+  <nav class="admin-navbar">
+    <span class="logo">Admin Dashboard</span>
+    <span class="top-actions">
+      <a href="admin.html">Admin</a>
+      <a href="logout.html">Log out</a>
+    </span>
+  </nav>
+  <div class="dashboard-layout">
+    <aside class="admin-sidebar">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="admin.html">Dashboard</a></li>
+        <li><a href="adminuser.html">Users</a></li>
+        <li><a href="admincomplaints.html" class="active">Complaints</a></li>
+        <li><a href="adminstatistics.html">Statistics</a></li>
+      </ul>
+    </aside>
+    <div class="admin-main-content">
+      <div class="admin-section-title">Complaints Management</div>
+      <div class="filter-toolbar">
+        <input
+          id="searchInput"
+          class="filter-input"
+          type="text"
+          placeholder="Search by user, subject, or ID"
+        />
+        <select id="roleFilter" class="filter-select">
+          <option value="">All Roles</option>
+          <option value="Student">Student</option>
+          <option value="Staff">Staff</option>
+        </select>
+        <select id="typeFilter" class="filter-select">
+          <option value="">All Types</option>
+          <option value="Classroom">Class-Room</option>
+          <option value="Management">Management</option>
+          <option value="College">College</option>
+          <option value="Teacher">Teacher</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="statusFilter" class="filter-select">
+          <option value="">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Solved">Solved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <button class="filter-btn" onclick="handleFilter()">Filter</button>
+      </div>
+      <div class="admin-table-container">
+        <table id="complaintsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Role</th>
+              <th>Type</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Last Updated</th>
+              <th>Assigned To</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+      <!-- Complaint Details Modal -->
+      <div id="complaintModal" class="modal-bg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title">Complaint Details</div>
+            <button class="modal-close" onclick="closeComplaintModal()">&times;</button>
+          </div>
+          <div id="modalBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+function escapeHtml(text) {
+  if (!text) return "";
+  return text.replace(/[&<>"']/g, function(m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+let complaints = [];
+let staffList = [];
+let filteredComplaints = [];
+let selectedComplaint = null;
+
+// Load all authorized staff for assignment dropdown
+async function loadStaffList() {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch('/api/admin/authorized-staff',{
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    staffList = await res.json();
+  } catch (e) {
+    staffList = [];
+  }
+}
+
+// Load complaints from backend with current filters
+async function loadComplaints() {
+  const token = localStorage.getItem("token");
+  const search  = document.getElementById('searchInput').value.trim();
+  const role    = document.getElementById('roleFilter').value;
+  const type    = document.getElementById('typeFilter').value;
+  const status  = document.getElementById('statusFilter').value;
+  let url = `/api/admin/complaints?`;
+  if (search) url += `search=${encodeURIComponent(search)}&`;
+  if (role)   url += `role=${encodeURIComponent(role)}&`;
+  if (type)   url += `type=${encodeURIComponent(type)}&`;
+  if (status) url += `status=${encodeURIComponent(status)}&`;
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    complaints = await res.json();
+    filteredComplaints = complaints;
+    renderComplaintsTable(complaints);
+  } catch (err) {
+    document.querySelector('#complaintsTable tbody').innerHTML =
+      `<tr><td colspan="10" style="color:red;">Error loading complaints</td></tr>`;
+  }
+}
+
+function renderComplaintsTable(data) {
+  const tbody = document.querySelector('#complaintsTable tbody');
+  tbody.innerHTML = '';
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">No complaints found.</td></tr>`;
+    return;
+  }
+  data.forEach((comp, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${escapeHtml(comp.user)}</td>
+        <td>${escapeHtml(comp.role)}</td>
+        <td>${escapeHtml(comp.type)}</td>
+        <td>${escapeHtml(comp.subject)}</td>
+        <td><span class="status-badge ${(comp.status||"").replace(/ /g,'')}">${escapeHtml(comp.status)}</span></td>
+        <td>${new Date(comp.submitted).toLocaleDateString()}</td>
+        <td>${new Date(comp.updated).toLocaleDateString()}</td>
+        <td>${escapeHtml(comp.assignedTo || "-")}</td>
+        <td>
+          <button class="action-btn" onclick="openComplaintModal(${comp.id})">View</button>
+          <button class="action-btn" onclick="openStatusUpdate(${comp.id})">Change Status</button>
+          <button class="action-btn" onclick="openAssignAction(${comp.id})">Assign</button>
+          <button class="action-btn" onclick="openCommentAction(${comp.id})">Add Comment</button>
+          <button class="action-btn delete-btn" onclick="deleteComplaint(${comp.id})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+window.openComplaintModal = async function(complaintId) {
+  selectedComplaint = null;
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`/api/admin/complaints/${complaintId}`,{
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Not found');
+    const c = await res.json();
+    selectedComplaint = c;
+    let commentsHtml = (c.comments && c.comments.length)
+      ? `<div class="modal-row modal-history"><b>Admin Comments:</b><br>${c.comments.map(h =>
+            `<span><span style="color:#357">${new Date(h.date).toLocaleDateString()}</span> | <b>${escapeHtml(h.user)}</b>: ${escapeHtml(h.msg)}</span><br>`
+         ).join('')}</div>`
+      : "";
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-row"><span class="modal-label">ID:</span> ${c.id}</div>
+      <div class="modal-row"><span class="modal-label">Subject:</span> ${escapeHtml(c.subject)}</div>
+      <div class="modal-row"><span class="modal-label">Type:</span> ${escapeHtml(c.type)}</div>
+      <div class="modal-row"><span class="modal-label">User:</span> ${escapeHtml(c.user)} <span style="color:#666">(${escapeHtml(c.role)})</span></div>
+      <div class="modal-row"><span class="modal-label">Submitted:</span> ${new Date(c.submitted).toLocaleString()}</div>
+      <div class="modal-row"><span class="modal-label">Status:</span> <span class="status-badge ${(c.status||"").replace(/ /g,'')}">${escapeHtml(c.status)}</span></div>
+      <div class="modal-row"><span class="modal-label">Assigned To:</span> ${escapeHtml(c.assignedTo||"-")}</div>
+      <div class="modal-row"><span class="modal-label">Last Updated:</span> ${new Date(c.updated).toLocaleString()}</div>
+      <div class="modal-row"><span class="modal-label">Description:</span><br>${escapeHtml(c.description)}</div>
+      ${commentsHtml}
+    `;
+    document.getElementById('complaintModal').classList.add('active');
+  } catch (err) {
+    alert("Could not load complaint details!");
+  }
+};
+
+window.closeComplaintModal = function() {
+  document.getElementById('complaintModal').classList.remove('active');
+}
+
+window.openStatusUpdate = function(complaintId) {
+  const c = complaints.find(x => x.id === complaintId);
+  if (!c) return;
+  document.getElementById('complaintModal').classList.add('active');
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-title" style="margin-bottom:10px;">Update Complaint Status</div>
+    <div class="modal-row"><span class="modal-label">ID:</span> ${c.id}</div>
+    <div class="modal-row"><span class="modal-label">Subject:</span> ${escapeHtml(c.subject)}</div>
+    <div class="update-action-area">
+      <label for="statusSelect">Status:</label>
+      <select id="statusSelect">
+        <option value="Pending" ${c.status==="Pending"?"selected":""}>Pending</option>
+        <option value="In Progress" ${c.status==="In Progress"?"selected":""}>In Progress</option>
+        <option value="Solved" ${c.status==="Solved"?"selected":""}>Solved</option>
+        <option value="Rejected" ${c.status==="Rejected"?"selected":""}>Rejected</option>
+      </select>
+      <button class="action-btn" onclick="setStatus(${c.id})">Update</button>
+    </div>
+  `;
+};
+
+window.setStatus = async function(complaintId) {
+  const newStatus = document.getElementById('statusSelect').value;
+  const token = localStorage.getItem("token");
+  try {
+    await fetch(`/api/admin/complaints/${complaintId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type":"application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ status: newStatus })
+    });
+    closeComplaintModal();
+    await loadComplaints();
+  } catch (err) {
+    alert("Failed to update status!");
+  }
+}
+
+// Assign complaint to staff
+window.openAssignAction = async function(complaintId) {
+  await loadStaffList();
+  const c = complaints.find(x => x.id === complaintId);
+  if (!c || !staffList.length) return;
+  const modalBody = document.getElementById('modalBody');
+  document.getElementById('complaintModal').classList.add('active');
+  const optionsHtml = [`<option value="">Unassigned</option>`].concat(
+    staffList.map(st =>
+      `<option value="${st.id}" ${c.assignedTo===st.name?'selected':''}>${escapeHtml(st.name)}</option>`
+    )
+  ).join('');
+  modalBody.innerHTML = `
+    <div class="modal-title" style="margin-bottom:10px;">Assign Complaint</div>
+    <div class="modal-row"><span class="modal-label">ID:</span> ${c.id}</div>
+    <div class="modal-row"><span class="modal-label">Subject:</span> ${escapeHtml(c.subject)}</div>
+    <div class="update-action-area">
+      <label for="assignToInput">Assign To:</label>
+      <select id="assignToInput">${optionsHtml}</select>
+      <button class="action-btn" onclick="setAssigned(${c.id})">Assign</button>
+    </div>
+  `;
+};
+
+window.setAssigned = async function(complaintId) {
+  const staffId = document.getElementById('assignToInput').value || null;
+  const token = localStorage.getItem("token");
+  try {
+    await fetch(`/api/admin/complaints/${complaintId}/assign`, {
+      method: "PATCH",
+      headers: { "Content-Type":"application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ staff_id: staffId })
+    });
+    closeComplaintModal();
+    await loadComplaints();
+  } catch (err) {
+    alert("Failed to assign complaint!");
+  }
+}
+
+// Add Comment to complaint
+window.openCommentAction = function(complaintId) {
+  const c = complaints.find(x => x.id === complaintId);
+  if (!c) return;
+  const modalBody = document.getElementById('modalBody');
+  document.getElementById('complaintModal').classList.add('active');
+  modalBody.innerHTML = `
+    <div class="modal-title" style="margin-bottom:10px;">Add Admin Comment</div>
+    <div class="modal-row"><span class="modal-label">ID:</span> ${c.id}</div>
+    <div class="modal-row"><span class="modal-label">Subject:</span> ${escapeHtml(c.subject)}</div>
+    <div class="update-action-area">
+      <textarea id="adminCommentInput" rows="3" placeholder="Write your comment here"></textarea>
+      <button class="action-btn" onclick="saveComment(${c.id})">Add Comment</button>
+    </div>
+  `;
+};
+
+window.saveComment = async function(complaintId) {
+  const msg = document.getElementById('adminCommentInput').value.trim();
+  if (!msg) return;
+  const token = localStorage.getItem("token");
+  try {
+    await fetch(`/api/admin/complaints/${complaintId}/comment`, {
+      method: "POST",
+      headers: { "Content-Type":"application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ comment: msg })
+    });
+    closeComplaintModal();
+    await loadComplaints();
+  } catch (err) {
+    alert("Failed to add comment!");
+  }
+}
+
+// Delete complaint
+window.deleteComplaint = async function(complaintId) {
+  if(!confirm('Are you sure you want to delete this complaint?')) return;
+  const token = localStorage.getItem("token");
+  try {
+    await fetch(`/api/admin/complaints/${complaintId}`, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token }
+    });
+    await loadComplaints();
+  } catch (err) {
+    alert("Failed to delete complaint!");
+  }
+}
+
+// On filter/search change
+window.handleFilter = function() { loadComplaints(); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadStaffList().then(loadComplaints);
+  document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if(e.key === 'Enter') handleFilter();
+  });
+  document.getElementById('roleFilter').addEventListener('change', handleFilter);
+  document.getElementById('typeFilter').addEventListener('change', handleFilter);
+  document.getElementById('statusFilter').addEventListener('change', handleFilter);
+  document.getElementById('complaintModal').addEventListener('click', function(e){
+    if(e.target === this) closeComplaintModal();
+  });
+});
+</script>
+
+</body>
+</html>

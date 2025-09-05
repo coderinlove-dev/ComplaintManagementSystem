@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.css" rel="stylesheet"/>
+  <style>
+    .main-content {
+      margin-left: 220px;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .stats-cards {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      min-width: 180px;
+      font-size: 1.2rem;
+    }
+
+    canvas {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+ <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="staffdashboard.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+<main>
+<div class="dashboard-container">
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="staffdashboard.html">Statistics</a></li>
+        <hr>
+        <li><a href="allcomplaints.html">All Complaint</a></li>
+        <hr>
+        <li><a href="staffsolvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+
+  <div class="main-content">
+    <h1 id="welcome-message">Welcome, Staff Member</h1>
+
+    <div class="stats-cards">
+      <div class="card">Total Complaints: <span id="total-count">--</span></div>
+      <div class="card">Unsolved Complaints: <span id="unsolved-count">--</span></div>
+      <div class="card">Solved Complaints: <span id="solved-count">--</span></div>
+    </div>
+
+    <canvas id="complaintsChart" width="600" height="300"></canvas>
+  </div>
+</main>
+  <!-- Footer -->
+  <footer>
+    &copy; Regal College. All rights reserved.
+  </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function authFetch(url, options = {}) {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error("No token found, please login again");
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+      ...(options.headers || {})
+    }
+  });
+
+  if (res.status === 401) {
+    console.warn("Unauthorized - redirecting to login");
+    window.location.href = "/login.html";
+    throw new Error("Unauthorized");
+  }
+  return res;
+}
+
+// --- Load profile & stats for dashboard ---
+async function loadDashboardData() {
+  try {
+    const [profileRes, statsRes] = await Promise.all([
+      authFetch('/api/staff/profile'),
+      authFetch('/api/staff/complaints/stats')
+    ]);
+
+    const profile = await profileRes.json();
+    const stats = await statsRes.json();
+
+    const name = profile.name || "Staff";
+    const sidebarWelcome = document.getElementById("welcomeUser");
+    if (sidebarWelcome) sidebarWelcome.textContent = "Welcome, " + name;
+
+    const mainWelcome = document.getElementById('welcome-message');
+    if (mainWelcome) mainWelcome.textContent = `Welcome, ${name}`;
+
+    
+    document.getElementById('total-count').textContent = stats.total ?? 0;
+    document.getElementById('unsolved-count').textContent = stats.unsolved ?? 0;
+    document.getElementById('solved-count').textContent = stats.solved ?? 0;
+
+
+    renderChart(stats.byType || []);
+  } catch (err) {
+    console.error('Error loading dashboard:', err);
+    document.getElementById('total-count').textContent = '--';
+    document.getElementById('unsolved-count').textContent = '--';
+    document.getElementById('solved-count').textContent = '--';
+  }
+}
+
+function renderChart(byTypeArr) {
+  const chart = document.getElementById('complaintsChart');
+  if (!chart) return;
+
+  const labels = byTypeArr.map(t => t.type);
+  const unsolved = byTypeArr.map(t => Number(t.unsolved));
+  const pending = byTypeArr.map(t => Number(t.pending));
+  const solved = byTypeArr.map(t => Number(t.solved));
+
+  if (window._complaintChart) window._complaintChart.destroy();
+
+  window._complaintChart = new Chart(chart, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Unsolved', data: unsolved, backgroundColor: '#e53935' },
+        { label: 'Pending',  data: pending,  backgroundColor: '#f6c23e' },
+        { label: 'Solved',   data: solved,   backgroundColor: '#1cc88a' }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        title: { display: true, text: 'Complaints by Type & Status' }
+      },
+      scales: {
+        x: { stacked: false },
+        y: { beginAtZero: true, stacked: false }
+      }
+    }
+  });
+}
+
+// --- Init on load ---
+loadDashboardData();
+</script>
+
+ </body>
+</html>

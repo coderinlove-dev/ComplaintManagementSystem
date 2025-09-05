@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register - Complaint Management System</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Optional: you can move this to your style.css */
+    select,
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    #branch-group {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="landingpage.html">Home</a></li>
+      <li><a href="userlogin.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <!-- Registration Form -->
+  <div class="login-form">
+    <h2>Create Account</h2>
+    <form action="#" method="POST">
+      <!-- Role Selector -->
+      <select name="role" id="role" required>
+        <option value="" disabled selected>Select Role</option>
+        <option value="student">Student</option>
+        <option value="staff">Staff</option>
+      </select>
+
+      <!-- Branch Selector (Visible only for Students) -->
+      <div id="branch-group">
+        <select name="branch">
+          <option value="" disabled selected>Select Branch</option>
+          <option value="Bachelor Of Computer Applications">Bachelor Of Computer Applications</option>
+          <option value="Fashion Designing">Fashion Designing</option>
+          <option value="ITI">ITI</option>
+          <option value="B.Com">B.Com</option>
+          <option value="Bsc HM">Bsc HM</option>
+        </select>
+      </div>
+
+      <input type="text" name="first_name" placeholder="First Name" required />
+      <input type="text" name="last_name" placeholder="Last Name" required />
+      <input type="email" name="email" placeholder="Email Address" required />
+      <input type="text" name="roll_number" placeholder="Student/Staff ID" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+
+      <button class="btn blue" type="submit">Register</button>
+    </form>
+
+    <div class="form-link">
+      Already have an account? <a href="login.html">Login here</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer> &copy; Regal College. All rights reserved.</footer>
+
+  <!-- JavaScript to toggle branch visibility -->
+  <script>
+    const roleSelect = document.getElementById('role');
+    const branchGroup = document.getElementById('branch-group');
+
+    roleSelect.addEventListener('change', () => {
+      if (roleSelect.value === 'student') {
+        branchGroup.style.display = 'block';
+      } else {
+        branchGroup.style.display = 'none';
+      }
+    });
+  </script>
+
+  <!-- Registration JS with session clear -->
+  <script>
+    document.querySelector('.login-form form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Clear previous session/authentication data:
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
+      // Clear any other stored user info keys if you use them, e.g.:
+      // localStorage.removeItem('userInfo');
+
+      const htmlRole = document.querySelector('[name="role"]').value;
+      const role = htmlRole === 'student' ? 'user' : 'staff';
+
+
+
+      const first_name = document.querySelector('[name="first_name"]').value;
+      const last_name = document.querySelector('[name="last_name"]').value;
+      const email = document.querySelector('[name="email"]').value;
+      const password = document.querySelector('[name="password"]').value;
+      const confirmPassword = document.querySelector('[name="confirm_password"]').value;
+      const roll_number = document.querySelector('[name="roll_number"]').value;
+      const branch = htmlRole === 'student' ? document.querySelector('[name="branch"]').value : null;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name,
+            last_name,
+            email,
+            password,
+            role,
+            roll_number,
+            branch,
+          }),
+        });
+
+        const data = await response.json();
+        alert(data.message);
+	document.querySelector('.login-form form').reset();
+
+      } catch (error) {
+        alert('Registration failed. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

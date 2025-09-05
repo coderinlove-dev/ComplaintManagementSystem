@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard - Complaint System</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+button[type="submit"] {
+  margin-top: 20px;
+  padding: 12px 25px;
+  font-size: 16px;
+  background-color: #4682B4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 200px;
+  display: inline-block;
+  text-align: center;
+}
+button[type="submit"]:hover {
+  background-color: #5a9bd8;
+}
+.submit-btn {
+  background-color: #4682B4;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 20px auto 0;
+}
+form input, form select, form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+form input:invalid, form select:invalid, form textarea:invalid {
+  border-color: red;
+}
+.error {
+  color: red;
+  font-size: 0.9em;
+  display: none;
+}
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="userdashboard.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+  <!-- Main Container -->
+  <main>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="userdashboard.html">Profile</a></li>
+        <hr>
+        <li><a href="addcomplaint.html">Add Complaint</a></li>
+        <hr>
+        <li><a href="unsolvedcomplaint.html">Unsolved Complaints</a></li>
+        <hr>
+        <li><a href="solvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+   <main class="dashboard-content">
+  <h2>Add Complaints:</h2>
+  <form id="complaintForm" enctype="multipart/form-data">
+    <label for="subject">Subject*</label>
+    <input type="text" id="subject" name="subject" placeholder="Enter Complaint Subject">
+    <span class="error" id="subjectError">This field is required.</span>
+
+    <label for="type">Type of complaint*</label>
+    <select id="type" name="type">
+      <option value="">-- Select Complaint Type --</option>
+      <option value="ClassRoom">ClassRoom</option>
+      <option value="College">College</option>
+      <option value="Management">Management</option>
+      <option value="Teacher">Teacher</option>
+      <option value="Other">Other</option>
+    </select>
+    <span class="error" id="typeError">This field is required.</span>
+
+    <label for="description">Description*</label>
+    <textarea id="description" name="description" rows="6" placeholder="Describe your complaint..."></textarea>
+    <span class="error" id="descriptionError">This field is required.</span>
+
+    <label for="attachment">Attachment (optional)</label>
+    <input type="file" id="attachment" name="attachment" accept="image/*,application/pdf">
+
+    <br>
+    <div style="text-align: center;">
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+</main>
+  </div>
+</main>
+  <!-- Footer -->
+  <footer>
+    &copy; Regal College. All rights reserved.
+  </footer>
+  <script>
+	document.getElementById("complaintForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  let isValid = true;
+
+  const subject = document.getElementById("subject");
+  const type = document.getElementById("type");
+  const description = document.getElementById("description");
+
+  const subjectError = document.getElementById("subjectError");
+  const typeError = document.getElementById("typeError");
+  const descriptionError = document.getElementById("descriptionError");
+
+  if (subject.value.trim() === "") {
+    subjectError.style.display = "block";
+    subject.style.borderColor = "red";
+    isValid = false;
+  } else {
+    subjectError.style.display = "none";
+    subject.style.borderColor = "#ccc";
+  }
+
+  if (type.value === "") {
+    typeError.style.display = "block";
+    type.style.borderColor = "red";
+    isValid = false;
+  } else {
+    typeError.style.display = "none";
+    type.style.borderColor = "#ccc";
+  }
+
+  if (description.value.trim() === "") {
+    descriptionError.style.display = "block";
+    description.style.borderColor = "red";
+    isValid = false;
+  } else {
+    descriptionError.style.display = "none";
+    description.style.borderColor = "#ccc";
+  }
+
+  if (isValid) {
+    const form = document.getElementById("complaintForm");
+    const formData = new FormData(form);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You are not logged in. Please log in to submit a complaint.");
+      return;
+    }
+
+    fetch('http://localhost:5000/api/complaints', {
+      method: 'POST',
+      headers: {
+        "Authorization": "Bearer " + token
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        if (data.message === "Complaint submitted successfully!") {
+          form.reset();
+        }
+      })
+      .catch(err => {
+        alert("Error: Could not submit complaint.");
+      });
+  }
+});
+
+// Sidebar username
+async function setUsernameInSidebar() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/user/me', {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+    if (!res.ok) return;
+    const userData = await res.json();
+    document.getElementById("welcomeUser").textContent = `Welcome, ${userData.first_name || userData.name || "User"}`;
+  } catch {
+  
+  }
+}
+setUsernameInSidebar();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard - Complaint System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h2>Complaint System</h2>
+    <ul class="nav-right">
+      <li><a href="userdashboard.html">Profile</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Container -->
+  <main>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3 id="welcomeUser">Welcome</h3>
+      <ul>
+        <li><a href="userdashboard.html">Profile</a></li>
+        <hr>
+        <li><a href="addcomplaint.html">Add Complaint</a></li>
+        <hr>
+        <li><a href="unsolvedcomplaint.html">Unsolved Complaints</a></li>
+        <hr>
+        <li><a href="solvedcomplaint.html">Solved Complaints</a></li>
+      </ul>
+    </aside>
+
+<div class="main-content">
+  <h1><strong> UnSolved Complaints</strong></h1>
+
+  <div class="table-container">
+    <table id="complaintsTable" border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Subject</th>
+          <th>Complaint Type</th>
+          <th>Issued Date</th>
+          <th>Desc</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows from JavaScript -->
+      </tbody>
+    </table>
+  </div>
+</div>
+</main>
+  <!-- Footer -->
+  <footer>
+     &copy; Regal College. All rights reserved.
+  </footer>
+
+<script>
+	async function setUsernameInSidebar() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res = await fetch('http://localhost:5000/api/user/me', {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return;
+    const userData = await res.json();
+    document.getElementById("welcomeUser").textContent =
+      "Welcome, " + (userData.first_name || userData.name || "User");
+  } catch {
+    
+  }
+}
+setUsernameInSidebar();
+</script>
+
+<script>
+window.onload = function () {
+  const token = localStorage.getItem('token');
+  const tbody = document.querySelector('#complaintsTable tbody');
+  fetch('http://localhost:5000/api/complaints/unsolved', {
+    headers: { "Authorization": "Bearer " + token }
+  })
+  .then(response => response.json())
+  .then(data => {
+    tbody.innerHTML = '';
+    data.forEach(item => {
+      
+      let bgColor, textColor, statusEmoji;
+      switch (item.status) {
+        case 'Unsolved':
+          bgColor = "#e53935";
+          textColor = "white";
+         statusEmoji = "";
+          break;
+        case 'Pending':
+          bgColor = "yellow";
+          textColor = "black";
+          statusEmoji = "";
+          break;
+        case 'Solved':
+          bgColor = "green";
+          textColor = "white";
+          statusEmoji = "";
+          break;
+        default:
+          bgColor = "gray";
+          textColor = "white";
+          statusEmoji = "";
+          break;
+      }
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.user}</td>
+        <td>${item.subject}</td>
+        <td>${item.type}</td>
+        <td>${new Date(item.issued_date).toLocaleDateString()}</td>
+        <td>
+          <button style="background-color: #00BCD4; color: white; padding: 5px 10px;" onclick="showComplaintDetails(\`${item.subject}\`, \`${item.description.replace(/`/g,"'").replace(/"/g,'&quot;')}\`)">Details</button>
+        </td>
+        <td>
+          <div style="
+            width: 90px;
+            min-height: 26px;
+            background-color: ${bgColor};
+            color: ${textColor};
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+          " aria-label="Complaint status: ${item.status}" role="status">
+            ${statusEmoji} ${item.status}
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  })
+  .catch(err => {
+    tbody.innerHTML = '<tr><td colspan="7">Error loading complaints.</td></tr>';
+    console.error('Error loading complaints:', err);
+  });
+};
+
+function showComplaintDetails(subject, description) {
+  alert(`Subject: ${subject}\n\nDescription:\n${description}`);
+}
+</script>
+</body>
+</html>

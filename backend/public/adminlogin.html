@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login | Complaint Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2>Complaint System</h2>
+    </div>
+    <ul class="nav-right">
+      <li><a href="landing.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <!-- Admin Login Form -->
+  <main>
+  <section class="login-form">
+    <h2>Admin Login</h2>
+<form id="admin-login-form">
+    <input type="text" placeholder="Admin Username or Email" name="email" required>
+    <input type="password" placeholder="Password" name="password" required>
+    <button type="submit" class="btn red">Login</button>
+</form>
+
+  </main>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p> &copy; Regal College. All rights reserved.</p>
+  </footer>
+
+<script>
+document.getElementById('admin-login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.querySelector('[name="email"]').value;
+    const password = document.querySelector('[name="password"]').value;
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.user && data.user.role === "admin") {
+            if (data.access_token) {
+                localStorage.setItem("token", data.access_token);
+            }
+            if (data.refresh_token) {
+                localStorage.setItem("refresh_token", data.refresh_token);
+            }
+
+          
+            window.location.href = 'admin.html';
+        } else {
+            alert(data.message || "Login failed or not an admin.");
+        }
+    } catch(err) {
+        console.error(err);
+        alert('Unable to login. Try again.');
+    }
+});
+</script>
+
+
+</body>
+</html>
